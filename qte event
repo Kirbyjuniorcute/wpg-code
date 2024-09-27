@@ -1,0 +1,87 @@
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;   // Include the SceneManager
+
+public class QuickTimeEvent : MonoBehaviour
+{
+    public GameObject qteCanvas;    // Canvas for the QTE prompt
+    public GameObject objectToMove; // The object that will move (e.g., a cube)
+    public float moveSpeed = 1f;    // Speed at which the object moves
+    public float moveAmount = 5f;   // How much the object should move
+    public bool moveUp = false;     // Whether the object should move up or down
+    public string nextSceneName;    // Name of the next scene to load
+
+    private int requiredPresses = 10;   // Number of button presses required
+    private int currentPresses = 0;     // Current number of button presses
+    private bool qteActive = false;     // Whether the QTE is active
+    private Vector3 originalPosition;   // Original position of the object
+
+    void Start()
+    {
+        qteCanvas.SetActive(false);      // Initially hide the QTE canvas
+        objectToMove.SetActive(false);   // Disable the object at the start
+        originalPosition = objectToMove.transform.position; // Store the original position of the object
+    }
+
+    void Update()
+    {
+        if (qteActive)
+        {
+            // Detect when the player presses the Enter key for spamming
+            if (Input.GetKeyDown(KeyCode.Return))
+            {
+                currentPresses++;
+                // If the player has pressed the key enough times, finish the QTE
+                if (currentPresses >= requiredPresses)
+                {
+                    qteActive = false;
+                    qteCanvas.SetActive(false);  // Hide the QTE canvas
+                    objectToMove.SetActive(true); // Enable the object
+                    MoveObject();                // Move the object and transition to the next scene
+                }
+            }
+        }
+        else
+        {
+            // Start the QTE when the player presses the E key
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                StartQTE();
+            }
+        }
+    }
+
+    void StartQTE()
+    {
+        qteActive = true;
+        currentPresses = 0;
+        qteCanvas.SetActive(true);   // Show the QTE canvas
+    }
+
+    void MoveObject()
+    {
+        Vector3 targetPosition;
+        if (moveUp)
+        {
+            targetPosition = originalPosition + new Vector3(0, moveAmount, 0);  // Move up by moveAmount
+        }
+        else
+        {
+            targetPosition = originalPosition - new Vector3(0, moveAmount, 0);  // Move down by moveAmount
+        }
+
+        StartCoroutine(MoveOverTime(targetPosition));
+    }
+
+    System.Collections.IEnumerator MoveOverTime(Vector3 targetPosition)
+    {
+        while (objectToMove.transform.position != targetPosition)
+        {
+            objectToMove.transform.position = Vector3.MoveTowards(objectToMove.transform.position, targetPosition, moveSpeed * Time.deltaTime);
+            yield return null;
+        }
+        
+        // Once the object has finished moving, load the next scene
+        SceneManager.LoadScene(nextSceneName);
+    }
+}
