@@ -14,7 +14,10 @@ public class QuickTimeEvent : MonoBehaviour
     public float greenZoneMin = 0.4f;    // Minimum slider value for success (green zone start)
     public float greenZoneMax = 0.6f;    // Maximum slider value for success (green zone end)
     public float qteSpeed = 2f;          // Speed of the slider moving
+    public Transform player;             // Reference to the player character's transform
+    public float activationDistance = 5f; // Distance within which QTE activates
     private bool qteActive = false;      // Whether the QTE is active
+    private bool playerInRange = false;  // Whether the player is near the object
     private Vector3 originalPosition;    // Original position of the object
     private bool sliderIncreasing = true; // Direction of slider movement
 
@@ -29,6 +32,16 @@ public class QuickTimeEvent : MonoBehaviour
 
     void Update()
     {
+        // Check the distance between player and the specific object (this object)
+        if (Vector3.Distance(player.position, transform.position) <= activationDistance)
+        {
+            playerInRange = true;
+        }
+        else
+        {
+            playerInRange = false;
+        }
+
         if (qteActive)
         {
             // Move the slider back and forth
@@ -42,8 +55,8 @@ public class QuickTimeEvent : MonoBehaviour
         }
         else
         {
-            // Start the QTE when the player presses the E key
-            if (Input.GetKeyDown(KeyCode.E))
+            // Start the QTE only when the player presses the E key and is within range
+            if (Input.GetKeyDown(KeyCode.E) && playerInRange)
             {
                 StartQTE();
             }
