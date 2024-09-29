@@ -1,0 +1,45 @@
+using UnityEngine;
+using UnityEngine.SceneManagement; // For scene transition
+using UnityEngine.UI;              // If you want to display the timer
+
+public class GameTimer : MonoBehaviour
+{
+    public float timeLimit = 300f;    // Total time in seconds (e.g., 300 seconds = 5 minutes)
+    public string nextSceneName;      // Name of the scene to load after time runs out
+    public Text timerText;            // Optional: UI Text to display the time
+
+    private float currentTime;
+
+    void Start()
+    {
+        currentTime = timeLimit;     // Initialize the timer
+    }
+
+    void Update()
+    {
+        // Countdown the time
+        if (currentTime > 0)
+        {
+            currentTime -= Time.deltaTime; // Decrease the timer based on time passed
+
+            // Optional: Update the timer display
+            if (timerText != null)
+            {
+                timerText.text = FormatTime(currentTime);
+            }
+        }
+        else
+        {
+            // Time has run out, load the next scene
+            SceneManager.LoadScene(nextSceneName);
+        }
+    }
+
+    // Format the time to show minutes and seconds
+    string FormatTime(float time)
+    {
+        int minutes = Mathf.FloorToInt(time / 60);  // Get minutes
+        int seconds = Mathf.FloorToInt(time % 60);  // Get remaining seconds
+        return string.Format("{0:00}:{1:00}", minutes, seconds);
+    }
+}
