@@ -1,0 +1,43 @@
+using UnityEngine;
+
+public class ObjectiveManager : MonoBehaviour
+{
+    public GameObject objectToShow; // The object to show on the main menu (if applicable)
+    public string playerTag = "Player"; // Tag for the player object
+    public string objectiveKey = "ObjectiveCompleted"; // Key for PlayerPrefs
+
+    public bool isObjectiveTrigger = false; // Set this true for the gameplay scene with the objective
+    public bool isMainMenu = false; // Set this true in the main menu scene
+
+    void Start()
+    {
+        // If we're on the main menu, check if the objective is completed
+        if (isMainMenu)
+        {
+            if (PlayerPrefs.GetInt(objectiveKey, 0) == 1)
+            {
+                // If the objective is completed, show the object
+                objectToShow.SetActive(true);
+            }
+            else
+            {
+                // Otherwise, hide the object
+                objectToShow.SetActive(false);
+            }
+        }
+    }
+
+    // When the player enters the trigger area
+    void OnTriggerEnter(Collider other)
+    {
+        // If this is the gameplay scene and the player interacts by walking into the area
+        if (isObjectiveTrigger && other.CompareTag(playerTag))
+        {
+            // Mark the objective as completed
+            PlayerPrefs.SetInt(objectiveKey, 1);
+            PlayerPrefs.Save(); // Save the PlayerPrefs data
+
+            // You can add additional logic here if needed, like showing UI feedback
+        }
+    }
+}
